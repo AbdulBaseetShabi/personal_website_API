@@ -20,22 +20,8 @@ app.listen(port,host,function(){
 });
 
 //GET
-app.get('/', function(req, res){
-    try {
-        res.status(200).send('Server is running...');   
-    } catch (err) {
-        console.log('Error');
-        res.status(500).send(err);
-    }
-});
-
+app.get('/', routes.testServer);
 app.get('/experience', routes.getExperience);
-
-app.get('*', function(req, res){
-    try{
-        res.status(404).send('Endpoint not found');
-    }catch (err) {
-        console.log('Error')
-        res.status(500).send(err);
-    }
-})
+app.get('/contact', routes.getContact);
+app.get('/biography', routes.getActiveBiography);
+app.get('*',  routes.endPointNotFound);
