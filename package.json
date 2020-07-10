@@ -15,5 +15,10 @@
   "bugs": {
     "url": "https://github.com/AbdulBaseetShabi/resume_backend/issues"
   },
-  "homepage": "https://github.com/AbdulBaseetShabi/resume_backend#readme"
+  "homepage": "https://github.com/AbdulBaseetShabi/resume_backend#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1"
+  }
 }
