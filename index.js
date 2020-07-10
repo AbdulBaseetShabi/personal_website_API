@@ -24,9 +24,8 @@ app.get('/', function(req, res){
     try {
         res.status(200).send('Server is running...');   
     } catch (err) {
-        console.log('Error')
-    }finally{
-        res.end();
+        console.log('Error');
+        res.status(500).send(err);
     }
 });
 
@@ -37,7 +36,6 @@ app.get('*', function(req, res){
         res.status(404).send('Endpoint not found');
     }catch (err) {
         console.log('Error')
-    }finally{
-        res.end();
+        res.status(500).send(err);
     }
 })
