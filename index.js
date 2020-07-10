@@ -30,6 +30,8 @@ app.get('/', function(req, res){
     }
 });
 
+app.get('/experience', routes.getExperience);
+
 app.get('*', function(req, res){
     try{
         res.status(404).send('Endpoint not found');
