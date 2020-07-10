@@ -21,9 +21,21 @@ app.listen(port,host,function(){
 
 //GET
 app.get('/', function(req, res){
-    res.status(200).send('Server is running...');
+    try {
+        res.status(200).send('Server is running...');   
+    } catch (err) {
+        console.log('Error')
+    }finally{
+        res.end();
+    }
 });
 
 app.get('*', function(req, res){
-    res.status(400).send(routes.endPointNotFound);
+    try{
+        res.status(404).send('Endpoint not found');
+    }catch (err) {
+        console.log('Error')
+    }finally{
+        res.end();
+    }
 })
