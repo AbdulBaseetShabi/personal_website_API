@@ -4,6 +4,22 @@ const mongoDBConnectionString =  `mongodb+srv://${process.env.mongoDBUsername}:$
 var client = new MongoClient(mongoDBConnectionString, { useNewUrlParser: true, useUnifiedTopology: true });
 
 //GENERAL
+(async ()=>{
+    try {
+        await client.connect((err) =>{
+            if (err) throw err;
+            if (client.isConnected()){
+                console.log('Connection established to DB');
+            }else{
+                throw new Error('Connection not established to DB');
+            }
+        });
+    } catch (err) {
+        console.log('Connection not established to DB');
+        // console.log(err);
+    }
+})();
+
 function testServer(req, res){
     try {
         res.status(200).send('Server is running...');   
@@ -25,23 +41,17 @@ function endPointNotFound(req, res){
 //BIOGRAPHY
 async function getActiveBiography(req, res){
     try {
-        await client.connect((err) =>{
-            if (err) throw err;
-            if(client.isConnected()){
-                console.log('Connection established to DB')
-                client.db('Resume').collection('biography').findOne({'active': true}, (err,result)=>{
-                    if (err) throw err; 
-                    res.status(200).send(result);
-                });
-            }else{
-                throw new Error('Connection not established to DB');
-            }
-        });
+        if(client.isConnected()){
+            client.db('Resume').collection('biography').findOne({'active': true}, (err,result)=>{
+                if (err) throw err; 
+                res.status(200).send(result);
+            });
+        }else{
+            throw new Error('Database Connection failed');
+        }
     } catch (error) {
         console.log(error);
         res.status(500).send(error);
-    }finally{
-        client.close();
     }
     return;
 }
@@ -50,23 +60,17 @@ async function getActiveBiography(req, res){
 //EXPERIENCE
 async function getExperience (req,res) {
     try {
-        await client.connect((err) =>{
-            if (err) throw err;
-            if(client.isConnected()){
-                console.log('Connection established to DB')
-                client.db('Resume').collection('experience').find({}).toArray((err,result)=>{
-                    if (err) throw err; 
-                    res.status(200).send(result);
-                });
-            }else{
-                throw new Error('Connection not established to DB');
-            }
-        });
+        if(client.isConnected()){
+            client.db('Resume').collection('experience').find({}).toArray((err,result)=>{
+                if (err) throw err; 
+                res.status(200).send(result);
+            });
+        }else{
+            throw new Error('Connection not established to DB');
+        }
     } catch (error) {
         console.log(error);
         res.status(500).send(error);
-    }finally{
-        client.close();
     }
     return;
 }
@@ -75,23 +79,17 @@ async function getExperience (req,res) {
 //CONTACT
 async function getContact (req, res) {
     try {
-        await client.connect((err) =>{
-            if (err) throw err;
-            if(client.isConnected()){
-                console.log('Connection established to DB')
-                client.db('Resume').collection('contact').findOne({'active': true}, (err,result)=>{
-                    if (err) throw err; 
-                    res.status(200).send(result);
-                });
-            }else{
-                throw new Error('Connection not established to DB');
-            }
-        });
+        if(client.isConnected()){
+            client.db('Resume').collection('contact').findOne({'active': true}, (err,result)=>{
+                if (err) throw err; 
+                res.status(200).send(result);
+            });
+        }else{
+            throw new Error('Connection not established to DB');
+        }
     } catch (error) {
         console.log(error);
         res.status(500).send(error);
-    }finally{
-        client.close();
     }
     return;
 }
