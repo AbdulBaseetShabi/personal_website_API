@@ -94,6 +94,10 @@ async function getContact (req, res) {
     return;
 }
 
+function TestingSth(){
+
+}
+
 module.exports = {
     testServer,
     endPointNotFound,
