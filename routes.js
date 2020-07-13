@@ -95,7 +95,7 @@ async function getContact (req, res) {
 }
 
 function TestingSth(){
-
+    console.log("Test")
 }
 
 module.exports = {
