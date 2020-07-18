@@ -33,3 +33,6 @@ app.get('/projects', routes.getProjects);
 app.get('/contact', routes.getContact);
 
 app.get('*',  routes.endPointNotFound);
+
+//POST
+app.post('/biography', routes.addBiography);

@@ -55,6 +55,26 @@ async function getActiveBiography(req, res){
     }  
 }
 
+async function addBiography(req, res){
+    let new_bio = req.data;
+    assert(new_bio == undefined, "Invalid data sent");
+    assert(new_bio.is_active == undefined, "Property is_active should be included");
+    assert(new_bio.data == undefined, "Property data should be included");
+    try {
+        if(client.isConnected()){
+            client.db('Resume').collection('biography').insertOne(new_bio,(err,result)=>{
+                if (err) throw err; 
+                res.status(201).send(result);
+            });
+        }else{
+            throw new Error('Database Connection failed');
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }  
+}
+
 //PROFILE
 async function getEducation (req, res) {
     try {
@@ -215,5 +235,6 @@ module.exports = {
     getWorkExperience,
     getVolunteerExperience,
     getProjects,
-    getContact
+    getContact,
+    addBiography
 }
