@@ -21,7 +21,15 @@ app.listen(port,host,function(){
 
 //GET
 app.get('/', routes.testServer);
-app.get('/experience', routes.getExperience);
-app.get('/contact', routes.getContact);
 app.get('/biography', routes.getActiveBiography);
+app.get('/profile/education', routes.getEducation);
+app.get('/profile/programminglanguages', routes.getProgrammingLanguages);
+app.get('/profile/tools', routes.getTools);
+app.get('/profile/concepts', routes.getConcepts);
+app.get('/experience/work', routes.getWorkExperience);
+app.get('/experience/coop', routes.getCoopExperience);
+app.get('/experience/volunteer', routes.getVolunteerExperience);
+app.get('/projects', routes.getProjects);
+app.get('/contact', routes.getContact);
+
 app.get('*',  routes.endPointNotFound);

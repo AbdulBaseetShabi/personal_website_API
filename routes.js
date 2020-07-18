@@ -42,7 +42,7 @@ function endPointNotFound(req, res){
 async function getActiveBiography(req, res){
     try {
         if(client.isConnected()){
-            client.db('Resume').collection('biography').findOne({'active': true}, (err,result)=>{
+            client.db('Resume').collection('biography').findOne({'is_active': true}, (err,result)=>{
                 if (err) throw err; 
                 res.status(200).send(result);
             });
@@ -52,16 +52,14 @@ async function getActiveBiography(req, res){
     } catch (error) {
         console.log(error);
         res.status(500).send(error);
-    }
-    return;
+    }  
 }
 
 //PROFILE
-//EXPERIENCE
-async function getExperience (req,res) {
+async function getEducation (req, res) {
     try {
         if(client.isConnected()){
-            client.db('Resume').collection('experience').find({}).toArray((err,result)=>{
+            client.db('Resume').collection('profile').find({"is_education": true,"is_active": true}).toArray((err,result)=>{
                 if (err) throw err; 
                 res.status(200).send(result);
             });
@@ -72,15 +70,127 @@ async function getExperience (req,res) {
         console.log(error);
         res.status(500).send(error);
     }
-    return;
+}
+
+async function getProgrammingLanguages (req, res) {
+    try {
+        if(client.isConnected()){
+            client.db('Resume').collection('profile').find({"is_programming_language": true,"is_active": true}).toArray((err,result)=>{
+                if (err) throw err; 
+                res.status(200).send(result);
+            });
+        }else{
+            throw new Error('Connection not established to DB');
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+}
+
+async function getTools (req, res) {
+    try {
+        if(client.isConnected()){
+            client.db('Resume').collection('profile').find({"is_tool": true,"is_active": true}).toArray((err,result)=>{
+                if (err) throw err; 
+                res.status(200).send(result);
+            });
+        }else{
+            throw new Error('Connection not established to DB');
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+}
+
+async function getConcepts (req, res) {
+    try {
+        if(client.isConnected()){
+            client.db('Resume').collection('profile').find({"is_concept": true,"is_active": true}).toArray((err,result)=>{
+                if (err) throw err; 
+                res.status(200).send(result);
+            });
+        }else{
+            throw new Error('Connection not established to DB');
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+}
+
+//EXPERIENCE
+async function getCoopExperience (req,res) {
+    try {
+        if(client.isConnected()){
+            client.db('Resume').collection('experience').find({"is_coop": true,"is_active": true}).toArray((err,result)=>{
+                if (err) throw err; 
+                res.status(200).send(result);
+            });
+        }else{
+            throw new Error('Connection not established to DB');
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }  
+}
+
+async function getVolunteerExperience (req,res) {
+    try {
+        if(client.isConnected()){
+            client.db('Resume').collection('experience').find({"is_volunteer": true,"is_active": true}).toArray((err,result)=>{
+                if (err) throw err; 
+                res.status(200).send(result);
+            });
+        }else{
+            throw new Error('Connection not established to DB');
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }  
+}
+
+async function getWorkExperience (req,res) {
+    try {
+        if(client.isConnected()){
+            client.db('Resume').collection('experience').find({"is_work": true,"is_active": true}).toArray((err,result)=>{
+                if (err) throw err; 
+                res.status(200).send(result);
+            });
+        }else{
+            throw new Error('Connection not established to DB');
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }   
 }
 
 //PROJECTS
+async function getProjects (req, res) {
+    try {
+        if(client.isConnected()){
+            client.db('Resume').collection('projects').find({'is_active': true}).toArray((err,result)=>{
+                if (err) throw err; 
+                res.status(200).send(result);
+            });
+        }else{
+            throw new Error('Connection not established to DB');
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }  
+}
+
 //CONTACT
 async function getContact (req, res) {
     try {
         if(client.isConnected()){
-            client.db('Resume').collection('contact').findOne({'active': true}, (err,result)=>{
+            client.db('Resume').collection('contact').find({'is_active': true}).toArray((err,result)=>{
                 if (err) throw err; 
                 res.status(200).send(result);
             });
@@ -91,13 +201,19 @@ async function getContact (req, res) {
         console.log(error);
         res.status(500).send(error);
     }
-    return;
 }
 
 module.exports = {
     testServer,
     endPointNotFound,
     getActiveBiography,
-    getExperience,
+    getEducation,
+    getProgrammingLanguages,
+    getTools,
+    getConcepts,
+    getCoopExperience,
+    getWorkExperience,
+    getVolunteerExperience,
+    getProjects,
     getContact
 }
