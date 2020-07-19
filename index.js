@@ -20,7 +20,8 @@ app.listen(port, function(){
 
 //GET
 app.get('/', routes.testServer);
-app.get('/biography', routes.getActiveBiography);
+app.get('/biography', routes.getBiography);
+app.get('/biography/all', routes.getAllBiography);
 app.get('/profile/education', routes.getEducation);
 app.get('/profile/programminglanguages', routes.getProgrammingLanguages);
 app.get('/profile/tools', routes.getTools);
@@ -35,3 +36,8 @@ app.get('*',  routes.endPointNotFound);
 
 //POST
 app.post('/biography', routes.addBiography);
+app.post('/biography/update', routes.updateBiography);
+app.post('/biography/active', routes.setBiographyActive);
+
+//DELETE
+app.delete('/biography', routes.deleteBiography);
