@@ -20,24 +20,11 @@ app.listen(port, function(){
 
 //GET
 app.get('/', routes.testServer);
-app.get('/biography', routes.getBiography);
-app.get('/biography/all', routes.getAllBiography);
-app.get('/profile/education', routes.getEducation);
-app.get('/profile/programminglanguages', routes.getProgrammingLanguages);
-app.get('/profile/tools', routes.getTools);
-app.get('/profile/concepts', routes.getConcepts);
-app.get('/experience/work', routes.getWorkExperience);
-app.get('/experience/coop', routes.getCoopExperience);
-app.get('/experience/volunteer', routes.getVolunteerExperience);
-app.get('/projects', routes.getProjects);
-app.get('/contact', routes.getContact);
-
 app.get('*',  routes.endPointNotFound);
 
 //POST
-app.post('/biography', routes.addBiography);
+app.post('/addData', routes.addDataToDB);
+app.post('/removeData', routes.removeDataFromDB);
+app.post('/getData', routes.getDataFromDB);
 app.post('/biography/update', routes.updateBiography);
 app.post('/biography/active', routes.setBiographyActive);
-
-//DELETE
-app.delete('/biography', routes.deleteBiography);

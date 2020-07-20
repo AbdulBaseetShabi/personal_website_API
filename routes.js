@@ -40,54 +40,20 @@ function endPointNotFound(req, res){
     }
 }
 
-//BIOGRAPHY
-async function getActiveBiography(callback){
-    if(client.isConnected()){
-        await client.db('Resume').collection('biography').findOne({'is_active': true}, (err,result)=>{
-            if (err) throw err; 
-             callback(result);
-        });
-    }else{
-        throw new Error('Database Connection failed');
-    }
-}
-
-async function getBiography(req, res){
+async function addDataToDB(req, res){
     try {
-       await getActiveBiography((value)=>{
-        res.status(200).send(value);
-       });
-    } catch (error) {
-        console.log(error);
-        res.status(500).send(error.message);
-    }  
-}
-
-async function getAllBiography(req, res){
-    try {
-        if(client.isConnected()){
-            await client.db('Resume').collection('biography').find({}).toArray((err,result)=>{
-                if (err) throw err; 
-                res.status(200).send(result);
-            });
-        }else{
-            throw new Error('Database Connection failed');
+        let new_data = req.body;
+        let db = req.query.db;
+        assert(new_data !== undefined, "Invalid data sent");
+        assert(db !== undefined, "Database name should be included in query string");
+        if (db === 'biography'){
+            assert(new_data.data !== undefined, "Property data should be included");
+            assert(new_data.date !== undefined, "Property date should be included");
+            assert(new_data.is_active !== undefined, "Property is_active should be included");
         }
-    } catch (error) {
-        console.log(error);
-        res.status(500).send(error.message);
-    }
-}
 
-async function addBiography(req, res){
-    try {
-        let new_bio = req.body;
-        assert(new_bio !== undefined, "Invalid data sent");
-        assert(new_bio.data !== undefined, "Property data should be included");
-        assert(new_bio.date !== undefined, "Property date should be included");
-        assert(new_bio.is_active !== undefined, "Property is_active should be included");
         if(client.isConnected()){
-            await client.db('Resume').collection('biography').insertOne(new_bio,(err,result)=>{
+            await client.db('Resume').collection(db).insertOne(new_data,(err,result)=>{
                 if (err) throw err; 
                 res.status(201).send(result);
             });
@@ -100,28 +66,78 @@ async function addBiography(req, res){
     }  
 }
 
-async function updateBiographyHelper(value, callback) {
+async function removeDataFromDB (req, res) {
+    try {
+        let id = req.body._id;
+        let db = req.query.db;
+        assert(id !== undefined, "Invalid data sent");
+        assert(db !== undefined, "Database name should be included in query string");
+        if(client.isConnected()){
+            await client.db('Resume').collection(db).deleteOne({'_id': new ObjectID(id)},(err,result)=>{
+                if (err) throw err; 
+                res.status(200).send(result);
+            });
+        }else{
+            throw new Error('Database Connection failed');
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error.message);
+    }
+}
+
+async function getDataFromDBHelper (db, condition, callback) {
+    if (client.isConnected()){
+        let param = condition !== undefined ? condition: {};
+        await client.db('Resume').collection(db).find(param).toArray((err,result)=>{
+            callback(err,result);
+       });
+    }else{
+        callback(new Error('Database connection failed'),undefined);
+    }
+}
+
+async function getDataFromDB (req, res) {
+    try {
+        let db = req.query.db;
+        let condition = req.body;
+        await getDataFromDBHelper(db, condition,(err,result) =>{
+            if (err) throw err;
+            res.status(200).send(result);
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error.message);
+    }
+}
+
+async function updateDataInDBHelper(db, value, callback) {
     if(client.isConnected()){
         let id = value._id;
         delete value._id;
-        await client.db('Resume').collection('biography').updateOne({'_id': new ObjectID(id)},{ $set: value },{ upsert: true },(err,result)=>{
-            if (err) throw err; 
-            callback(result);
+        await client.db('Resume').collection(db).updateOne({'_id': new ObjectID(id)},{ $set: value },{ upsert: true },(err,result)=>{
+            callback(err,result);
         });
     }else{
-        throw new Error('Database Connection failed');
+        callback(new Error('Database Connection failed'),undefined);
     }
 }
 
 async function updateBiography(req, res){
     try {
-        let bio = req.body;
-        assert(bio !== undefined, "Invalid data sent");
-        assert(bio._id !== undefined, "Property id should be included");
-        assert(bio.data !== undefined, "Property data should be included");
-        assert(bio.date !== undefined, "Property date should be included");
-        assert(bio.is_active !== undefined, "Property is_active should be included");
-        await updateBiographyHelper(bio, (result)=>{
+        let value = req.body;
+        let db = req.query.db;
+        assert(value !== undefined, "Invalid data sent");
+        assert(db !== undefined, "Database name should be included in query string");
+        if(db === 'biography'){
+            assert(value._id !== undefined, "Property id should be included");
+            assert(value.data !== undefined, "Property data should be included");
+            assert(value.date !== undefined, "Property date should be included");
+            assert(value.is_active !== undefined, "Property is_active should be included");
+        }
+
+        await updateDataInDBHelper(db, value, (err,result)=>{
+            if (err) throw err;
             res.status(200).send(result);
         });
     } catch (error) {
@@ -130,218 +146,44 @@ async function updateBiography(req, res){
     }  
 }
 
+//BIOGRAPHY
 async function setBiographyActive(req, res){
     try {
         let bio = req.body;
         assert(bio !== undefined, "Invalid data sent");
         assert(bio._id !== undefined, "Property id should be included");
-        assert(bio.data !== undefined, "Property data should be included");
-        assert(bio.date !== undefined, "Property date should be included");
-        assert(bio.is_active !== undefined, "Property is_active should be included");
         if(client.isConnected()){
-            await getActiveBiography(async (value)=>{
+            await getDataFromDBHelper('biography', {'is_active':true}, async (err, value)=>{
+                if (err) throw err;
                 let old_active_bio = value;
                 old_active_bio.is_active = false;
-                await updateBiographyHelper(bio,async (val)=>{
+                await updateDataInDBHelper('biography', bio,async (err, val)=>{
+                    if (err) throw err;
                     if(val){
-                        await updateBiographyHelper(old_active_bio,async (value)=>{
+                        await updateDataInDBHelper('biography', old_active_bio,async (err,value)=>{
+                            if (err) throw err;
                             res.status(200).send(value);
                         });        
                     }
                 });
             });
-        }else{
-            throw new Error('Database Connection failed');
         }
     } catch (error) {
         console.log(error);
         res.status(500).send(error.message);
     }  
-}
-
-async function deleteBiography (req, res) {
-    try {
-        let id = req.body._id
-        assert(id !== undefined, "Invalid data sent");
-        if(client.isConnected()){
-            await client.db('Resume').collection('biography').deleteOne({'_id': new ObjectID(id)},(err,result)=>{
-                if (err) throw err; 
-                res.status(200).send(result);
-            });
-        }else{
-            throw new Error('Database Connection failed');
-        }
-    } catch (error) {
-        console.log(error);
-        res.status(500).send(error.message);
-    }
 }
 
 //PROFILE
-async function getEducation (req, res) {
-    try {
-        if(client.isConnected()){
-            await client.db('Resume').collection('profile').find({"is_education": true,"is_active": true}).toArray((err,result)=>{
-                if (err) throw err; 
-                res.status(200).send(result);
-            });
-        }else{
-            throw new Error('Connection not established to DB');
-        }
-    } catch (error) {
-        console.log(error);
-        res.status(500).send(error.message);
-    }
-}
-
-async function getProgrammingLanguages (req, res) {
-    try {
-        if(client.isConnected()){
-            await client.db('Resume').collection('profile').find({"is_programming_language": true,"is_active": true}).toArray((err,result)=>{
-                if (err) throw err; 
-                res.status(200).send(result);
-            });
-        }else{
-            throw new Error('Connection not established to DB');
-        }
-    } catch (error) {
-        console.log(error);
-        res.status(500).send(error.message);
-    }
-}
-
-async function getTools (req, res) {
-    try {
-        if(client.isConnected()){
-            await client.db('Resume').collection('profile').find({"is_tool": true,"is_active": true}).toArray((err,result)=>{
-                if (err) throw err; 
-                res.status(200).send(result);
-            });
-        }else{
-            throw new Error('Connection not established to DB');
-        }
-    } catch (error) {
-        console.log(error);
-        res.status(500).send(error.message);
-    }
-}
-
-async function getConcepts (req, res) {
-    try {
-        if(client.isConnected()){
-            await client.db('Resume').collection('profile').find({"is_concept": true,"is_active": true}).toArray((err,result)=>{
-                if (err) throw err; 
-                res.status(200).send(result);
-            });
-        }else{
-            throw new Error('Connection not established to DB');
-        }
-    } catch (error) {
-        console.log(error);
-        res.status(500).send(error.message);
-    }
-}
-
 //EXPERIENCE
-async function getCoopExperience (req,res) {
-    try {
-        if(client.isConnected()){
-            await client.db('Resume').collection('experience').find({"is_coop": true,"is_active": true}).toArray((err,result)=>{
-                if (err) throw err; 
-                res.status(200).send(result);
-            });
-        }else{
-            throw new Error('Connection not established to DB');
-        }
-    } catch (error) {
-        console.log(error);
-        res.status(500).send(error.message);
-    }  
-}
-
-async function getVolunteerExperience (req,res) {
-    try {
-        if(client.isConnected()){
-            await client.db('Resume').collection('experience').find({"is_volunteer": true,"is_active": true}).toArray((err,result)=>{
-                if (err) throw err; 
-                res.status(200).send(result);
-            });
-        }else{
-            throw new Error('Connection not established to DB');
-        }
-    } catch (error) {
-        console.log(error);
-        res.status(500).send(error.message);
-    }  
-}
-
-async function getWorkExperience (req,res) {
-    try {
-        if(client.isConnected()){
-            await client.db('Resume').collection('experience').find({"is_work": true,"is_active": true}).toArray((err,result)=>{
-                if (err) throw err; 
-                res.status(200).send(result);
-            });
-        }else{
-            throw new Error('Connection not established to DB');
-        }
-    } catch (error) {
-        console.log(error);
-        res.status(500).send(error.message);
-    }   
-}
-
 //PROJECTS
-async function getProjects (req, res) {
-    try {
-        if(client.isConnected()){
-            await client.db('Resume').collection('projects').find({'is_active': true}).toArray((err,result)=>{
-                if (err) throw err; 
-                res.status(200).send(result);
-            });
-        }else{
-            throw new Error('Connection not established to DB');
-        }
-    } catch (error) {
-        console.log(error);
-        res.status(500).send(error.message);
-    }  
-}
-
 //CONTACT
-async function getContact (req, res) {
-    try {
-        if(client.isConnected()){
-            await client.db('Resume').collection('contact').find({'is_active': true}).toArray((err,result)=>{
-                if (err) throw err; 
-                res.status(200).send(result);
-            });
-        }else{
-            throw new Error('Connection not established to DB');
-        }
-    } catch (error) {
-        console.log(error);
-        res.status(500).send(error.message);
-    }
-}
-
 module.exports = {
     testServer,
     endPointNotFound,
-    getBiography,
-    getAllBiography,
-    addBiography,
+    addDataToDB,
+    removeDataFromDB,
+    getDataFromDB,
     updateBiography,
-    setBiographyActive,
-    deleteBiography,
-    getEducation,
-    getProgrammingLanguages,
-    getTools,
-    getConcepts,
-    getCoopExperience,
-    getWorkExperience,
-    getVolunteerExperience,
-    getProjects,
-    getContact,
-    
+    setBiographyActive
 }
