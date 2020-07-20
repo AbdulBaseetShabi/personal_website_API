@@ -26,5 +26,5 @@ app.get('*',  routes.endPointNotFound);
 app.post('/addData', routes.addDataToDB);
 app.post('/removeData', routes.removeDataFromDB);
 app.post('/getData', routes.getDataFromDB);
-app.post('/biography/update', routes.updateBiography);
+app.post('/updateData', routes.updateDataInDB);
 app.post('/biography/active', routes.setBiographyActive);

@@ -123,7 +123,7 @@ async function updateDataInDBHelper(db, value, callback) {
     }
 }
 
-async function updateBiography(req, res){
+async function updateDataInDB(req, res){
     try {
         let value = req.body;
         let db = req.query.db;
@@ -150,20 +150,26 @@ async function updateBiography(req, res){
 async function setBiographyActive(req, res){
     try {
         let bio = req.body;
+        bio.is_active = true;
         assert(bio !== undefined, "Invalid data sent");
         assert(bio._id !== undefined, "Property id should be included");
         if(client.isConnected()){
             await getDataFromDBHelper('biography', {'is_active':true}, async (err, value)=>{
                 if (err) throw err;
-                let old_active_bio = value;
-                old_active_bio.is_active = false;
+                let old_active_bio;
+                if(value.length!==0){
+                    old_active_bio = value[0];
+                    old_active_bio.is_active = false;
+                }
                 await updateDataInDBHelper('biography', bio,async (err, val)=>{
                     if (err) throw err;
-                    if(val){
+                    if(val && value.length!==0){
                         await updateDataInDBHelper('biography', old_active_bio,async (err,value)=>{
                             if (err) throw err;
                             res.status(200).send(value);
                         });        
+                    }else{
+                        res.status(200).send(val);
                     }
                 });
             });
@@ -184,6 +190,6 @@ module.exports = {
     addDataToDB,
     removeDataFromDB,
     getDataFromDB,
-    updateBiography,
+    updateDataInDB,
     setBiographyActive
 }
