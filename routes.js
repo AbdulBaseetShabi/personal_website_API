@@ -50,12 +50,13 @@ async function addDataToDB(req, res){
             assert(new_data.data !== undefined, "Property data should be included");
             assert(new_data.date !== undefined, "Property date should be included");
             assert(new_data.is_active !== undefined, "Property is_active should be included");
+            new_data.is_active = new_data.is_active == "true"; 
         }
 
         if(client.isConnected()){
             await client.db('Resume').collection(db).insertOne(new_data,(err,result)=>{
                 if (err) throw err; 
-                res.status(201).send(result);
+                res.status(201).send(result.insertedId);
             });
         }else{
             throw new Error('Database Connection failed');
