@@ -54,7 +54,7 @@ async function addDataToDB(req, res){
         }
 
         if(client.isConnected()){
-            await client.db('Resume').collection(db).insertOne(new_data,(err,result)=>{
+            await client.db(process.env.db).collection(db).insertOne(new_data,(err,result)=>{
                 if (err) throw err; 
                 res.status(201).send(result.insertedId);
             });
@@ -74,7 +74,7 @@ async function removeDataFromDB (req, res) {
         assert(id !== undefined, "Invalid data sent");
         assert(db !== undefined, "Database name should be included in query string");
         if(client.isConnected()){
-            await client.db('Resume').collection(db).deleteOne({'_id': new ObjectID(id)},(err,result)=>{
+            await client.db(process.env.db).collection(db).deleteOne({'_id': new ObjectID(id)},(err,result)=>{
                 if (err) throw err; 
                 res.status(200).send(result);
             });
@@ -90,7 +90,7 @@ async function removeDataFromDB (req, res) {
 async function getDataFromDBHelper (db, condition, callback) {
     if (client.isConnected()){
         let param = condition !== undefined ? condition: {};
-        await client.db('Resume').collection(db).find(param).toArray((err,result)=>{
+        await client.db(process.env.db).collection(db).find(param).toArray((err,result)=>{
             callback(err,result);
        });
     }else{
@@ -116,7 +116,7 @@ async function updateDataInDBHelper(db, value, callback) {
     if(client.isConnected()){
         let id = value._id;
         delete value._id;
-        await client.db('Resume').collection(db).updateOne({'_id': new ObjectID(id)},{ $set: value },{ upsert: true },(err,result)=>{
+        await client.db(process.env.db).collection(db).updateOne({'_id': new ObjectID(id)},{ $set: value },{ upsert: true },(err,result)=>{
             callback(err,result);
         });
     }else{
@@ -133,8 +133,6 @@ async function updateDataInDB(req, res){
         if(db === 'biography'){
             assert(value._id !== undefined, "Property id should be included");
             assert(value.data !== undefined, "Property data should be included");
-            assert(value.date !== undefined, "Property date should be included");
-            assert(value.is_active !== undefined, "Property is_active should be included");
         }
 
         await updateDataInDBHelper(db, value, (err,result)=>{
