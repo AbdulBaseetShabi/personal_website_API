@@ -59,7 +59,43 @@ async function addDataToDB(req, res) {
         new_data.is_active !== undefined,
         "Property is_active should be included"
       );
-      new_data.is_active = new_data.is_active == "true";
+    } else if (db === "experience") {
+      assert(
+        new_data.jobTitle !== undefined,
+        "Property jobTitle should be included"
+      );
+      assert(
+        new_data.companyName !== undefined,
+        "Property companyName should be included"
+      );
+      assert(
+        new_data.dateFrom !== undefined,
+        "Property dateFrom should be included"
+      );
+      assert(
+        new_data.dateTo !== undefined,
+        "Property dateTo should be included"
+      );
+      assert(
+        new_data.isCoop !== undefined,
+        "Property isCoop should be included"
+      );
+      assert(
+        new_data.descriptions !== undefined,
+        "Property descriptions should be included"
+      );
+      assert(
+        new_data.isWork !== undefined,
+        "Property isWork should be included"
+      );
+      assert(
+        new_data.isVolunteer !== undefined,
+        "Property isVolunteer should be included"
+      );
+      assert(
+        new_data.isActive !== undefined,
+        "Property isActive should be included"
+      );
     }
 
     if (client.isConnected()) {
@@ -181,18 +217,6 @@ async function updateDataInDB(req, res) {
           value.isActive !== undefined,
         "no data to be updated sent"
       );
-      if (value.isCoop !== undefined) {
-        value.isCoop = value.isCoop == "true";
-      }
-      if (value.isWork !== undefined) {
-        value.isWork = value.isWork == "true";
-      }
-      if (value.isVolunteer !== undefined) {
-        value.isVolunteer = value.isVolunteer == "true";
-      }
-      if (value.isActive !== undefined) {
-        value.isActive = value.isActive == "true";
-      }
     }
 
     await updateDataInDBHelper(db, value, (err, result) => {
@@ -247,10 +271,6 @@ async function setBiographyActive(req, res) {
   }
 }
 
-//PROFILE
-//EXPERIENCE
-//PROJECTS
-//CONTACT
 module.exports = {
   testServer,
   endPointNotFound,
